@@ -6,8 +6,8 @@ const app = express();
 const PORT = 3000;
 
 // ===== CONFIG =====
-const TELEGRAM_TOKEN = "ISI_BOT_TOKEN";
-const CHAT_ID = "ISI_CHAT_ID";
+const TELEGRAM_TOKEN = "8229365066:AAFrgXzX07re3FjlCEaf2LR0ivNq7i0XaG0";
+const CHAT_ID = "2025934796";
 
 // Simpan data lama
 const FILE = "data.json";
