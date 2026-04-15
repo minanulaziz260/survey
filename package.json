@@ -1,5 +1,5 @@
 {
-  "name": "populix-monitor",
+  "name": "openclaw-lite",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "dotenv": "^16.4.5"
   }
 }
