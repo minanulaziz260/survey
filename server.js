@@ -1,67 +1,54 @@
 import express from "express";
 import fetch from "node-fetch";
-import fs from "fs";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
+app.use(express.json());
+
 const PORT = 3000;
 
-// ===== CONFIG =====
-const TELEGRAM_TOKEN = "8229365066:AAFrgXzX07re3FjlCEaf2LR0ivNq7i0XaG0";
-const CHAT_ID = "2025934796";
+// 🔥 API KEY (pakai Gemini biar gratis)
+const API_KEY = process.env.GEMINI_API_KEY;
 
-// Simpan data lama
-const FILE = "data.json";
-
-function loadData() {
-  if (!fs.existsSync(FILE)) return [];
-  return JSON.parse(fs.readFileSync(FILE));
-}
-
-function saveData(data) {
-  fs.writeFileSync(FILE, JSON.stringify(data));
-}
-
-// Kirim Telegram
-async function sendTelegram(text) {
-  await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text: text,
-    }),
-  });
-}
-
-// Dummy checker (sementara)
-async function checkSurvey() {
-  // nanti bisa kita upgrade ke real scraping/API
-  const fakeData = [
-    {
-      title: "Survey Baru",
-      reward: "Rp5.000",
-    },
-  ];
-
-  const old = loadData();
-
-  const isNew = JSON.stringify(old) !== JSON.stringify(fakeData);
-
-  if (isNew) {
-    await sendTelegram("🔥 Survey baru tersedia!");
-    saveData(fakeData);
-  }
-}
-
-// Route manual
-app.get("/check", async (req, res) => {
-  await checkSurvey();
-  res.send("Checked!");
+app.get("/", (req, res) => {
+  res.send("OpenClaw Lite jalan 🚀");
 });
 
-// Auto tiap 3 menit
-setInterval(checkSurvey, 180000);
+app.post("/chat", async (req, res) => {
+  const { message } = req.body;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: message }]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "No response";
+
+    res.json({ reply });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
 
 app.listen(PORT, () => {
-  console.log("Server jalan di port", PORT);
+  console.log("OpenClaw Lite running on port", PORT);
 });
